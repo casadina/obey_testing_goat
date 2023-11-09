@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# CSRF check
+CSRF_TRUSTED_ORIGINS = ['https://*.shsid.one','https://*.127.0.0.1']
 
 # Application definition
 
