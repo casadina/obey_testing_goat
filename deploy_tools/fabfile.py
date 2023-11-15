@@ -1,50 +1,35 @@
 import random
-from fabric.contrib.files import append, exists
-from fabric.api import cd, env, local, run
+from dotenv import load_dotenv
+from fabric import Connection, task
+from invoke import Context
+from os import getenv
 
-REPO_URL = 'https://github.com/casadina/obey_testing_goat.git'
-
-
-def deploy():
-    site_folder = f'/home/{env.user}/sites/{env.host}'
-    run(f'mkdir -p {site_folder}')
-    with cd(site_folder):
-        _get_latest_source()
-        _update_virtualenv()
-        _create_or_update_dotenv()
-        _update_static_files()
-        _update_database()
+load_dotenv('/Users/mimi/coding/obey_testing_goat/.env')
+REPO_URL = getenv('REPOSITORY')
+USERNAME = getenv('USERNAME')
+HOST = getenv('HOST')
+SITENAME = getenv('SITENAME')
 
 
-def _get_latest_source():
-    if exists('.git'):
-        run('git fetch')
-    else:
-        run(f'git clone {REPO_URL} .')
-    current_commit = local("git log -n 1 --format=%H", capture=True)
-    run(f'git reset --hard {current_commit}')
+@task
+def deploy(ctx):
+    with Connection(
+        host=HOST,
+        user=USERNAME,
+        port=2222,
+        connect_kwargs={"key_filename": getenv('SSH_PKEY')}
+    ) as c:
+        c.run(f"mkdir -p /home/{USERNAME}/test_getenv")
+        c.run(f"ls -al /home/goat")
+        print("Created test directory?")
+        """
+        c.run(f"cd /home/USERNAME/sites/{SITENAME} && git pull")
+        c.run(f"cd /home/USERNAME/sites/your_site && /home/USERNAME/.virtualenvs/your_virtualenv/bin/pip install -r requirements.txt")
+        c.run(f"cd /home/USERNAME/sites/your_site && /home/USERNAME/.virtualenvs/your_virtualenv/bin/python manage.py migrate --noinput")
+        c.run(f"cd /home/USERNAME/sites/your_site && /home/USERNAME/.virtualenvs/your_virtualenv/bin/python manage.py collectstatic --noinput")
+        """
 
 
-def _update_virtualenv():
-    if not exists('.venv/bin/pip'):
-        run(f'python3.11 -m venv .venv')
-    run('./.venv/bin/pip install -r requirements.txt')
+ctx = Context()
 
-
-def _create_or_update_dotenv():
-    append('.env', 'DJANGO_DEBUG_FALSE=y')
-    append('.env', f'SITENAME={env.host}')
-    current_contents = run('cat .env')
-    if 'DJANGO_SECRET_KEY' not in current_contents:
-        new_secret = ''.join(random.SystemRandom().choices(
-            'abcdefghijklmnopqrstuvwxyz0123456789', k=50
-        ))
-        append('.env', f'DJANGO_SECRET_KEY={new_secret}')
-
-
-def _update_static_files():
-    run('./.venv/bin/python manage.py collectstatic --noinput')
-
-
-def _update_database():
-    run('./.venv/bin/python manage.py migrate --noinput')
+deploy(ctx)
