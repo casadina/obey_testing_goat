@@ -27,8 +27,8 @@ def deploy(ctx):
         _get_latest_source(c)
         _update_virtualenv(c)
         _create_or_update_dotenv(c)
-        # _update_static_files(c)
-        # _update_database(c)
+        _update_static_files(c)
+        _update_database(c)
 
 
 def _get_latest_source(c):
@@ -60,6 +60,16 @@ def _create_or_update_dotenv(c):
         current_contents = current_contents.append(f"DJANGO_SECRET_KEY={new_secret}")
     c.run(f"echo \"{current_contents}\" > {CD_PATH}/.env")
     c.run(f"cat {CD_PATH}/.env")
+
+
+def _update_static_files(c):
+    """Change to the directory where the source code is located and update the static files."""
+    c.run(f"cd {CD_PATH} && {CD_PATH}/.venv/bin/python manage.py collectstatic --noinput")
+
+
+def _update_database(c):
+    """Change to the directory where the source code is located and update the database."""
+    c.run(f"cd {CD_PATH} && {CD_PATH}/.venv/bin/python manage.py migrate --noinput")
 
 
 context = Context()
