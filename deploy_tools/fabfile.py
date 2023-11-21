@@ -11,6 +11,7 @@ USERNAME = getenv('USERNAME')
 HOST = getenv('HOST')
 SITENAME = getenv('SITENAME')
 GIT_PATH = "/usr/bin/git"
+CD_PATH = f"/home/{USERNAME}/sites/{SITENAME}"
 
 
 @task
@@ -30,20 +31,19 @@ def deploy(ctx):
 
 def _get_latest_source(c):
     """Change to the directory where the source code is located and pull the latest code from the repository."""
-    if c.run(f"test -d /home/{USERNAME}/sites/{SITENAME}/.git", warn=True).failed:
-        c.run(f"{GIT_PATH} clone {REPO_URL} /home/{USERNAME}/sites/{SITENAME}")
+    if c.run(f"test -d {CD_PATH}/.git", warn=True).failed:
+        c.run(f"{GIT_PATH} clone {REPO_URL} {CD_PATH}")
     current_commit = subprocess.check_output([GIT_PATH, "log", "-n 1", "--format=%H"]).decode("utf-8").strip("\n")
-    c.run(f"cd /home/{USERNAME}/sites/{SITENAME} && {GIT_PATH} fetch")
+    c.run(f"cd {CD_PATH} && {GIT_PATH} fetch")
     # TODO: Fabric doesn't like the reset command. It runs but receives this error:
     # fatal: not a git repository (or any of the parent directories): .git
-    c.run(f'{GIT_PATH} reset --hard {current_commit}')
-    c.run(f'{GIT_PATH} log -n 1 --format=%H')
+    c.run(f'cd {CD_PATH} && {GIT_PATH} reset --hard {current_commit}')
+    c.run(f'cd {CD_PATH} && {GIT_PATH} log -n 1 --format=%H')
 
 
 def _update_virtualenv(c):
     """Change to the directory where the source code is located and update the virtual environment."""
-    c.run(f"cd /home/{USERNAME}/sites/{SITENAME}"
-          f"&& /home/{USERNAME}/sites/{SITENAME}.venv/bin/pip install -r requirements.txt")
+    c.run(f"{CD_PATH}/.venv/bin/pip install -r {CD_PATH}/requirements.txt")
 
 
 def _create_or_update_dotenv(c):
