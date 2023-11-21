@@ -25,7 +25,7 @@ else:
     DEBUG = True
     ALLOWED_HOSTS = ["*"]
     # CSRF check
-    CSRF_TRUSTED_ORIGINS = [f'https://*.{os.environ["SITENAME"]}', 'https://*.127.0.0.1']
+    CSRF_TRUSTED_ORIGINS = [f'https://{os.environ["SITENAME"]}', 'https://127.0.0.1']
 
 # Application definition
 
