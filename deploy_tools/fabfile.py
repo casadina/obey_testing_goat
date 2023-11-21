@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 from fabric import Connection, task
 from invoke import Context
 from os import getenv
+from pathlib import Path
 
-load_dotenv('/Users/mimi/coding/obey_testing_goat/.env')
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 REPO_URL = getenv('REPOSITORY')
 USERNAME = getenv('USERNAME')
 HOST = getenv('HOST')
