@@ -1,4 +1,5 @@
 import random
+import subprocess
 from dotenv import load_dotenv
 from fabric import Connection, task
 from invoke import Context
@@ -9,6 +10,7 @@ REPO_URL = getenv('REPOSITORY')
 USERNAME = getenv('USERNAME')
 HOST = getenv('HOST')
 SITENAME = getenv('SITENAME')
+GIT_PATH = "/usr/bin/git"
 
 
 @task
@@ -23,14 +25,17 @@ def deploy(ctx):
         # _update_virtualenv(c)
         # _create_or_update_dotenv(c)
         # _update_static_files(c)
-        #_update_database(c)
+        # _update_database(c)
 
 
 def _get_latest_source(c):
     """Change to the directory where the source code is located and pull the latest code from the repository."""
     if c.run(f"test -d /home/{USERNAME}/sites/{SITENAME}/.git", warn=True).failed:
-        c.run(f"git clone {REPO_URL} /home/{USERNAME}/sites/{SITENAME}")
-    c.run(f"cd /home/{USERNAME}/sites/{SITENAME} && git pull")
+        c.run(f"{GIT_PATH} clone {REPO_URL} /home/{USERNAME}/sites/{SITENAME}")
+    current_commit = subprocess.check_output([GIT_PATH, "log", "-n 1", "--format=%H"]).decode("utf-8").strip("\n")
+    c.run(f"cd /home/{USERNAME}/sites/{SITENAME} && {GIT_PATH} fetch")
+    c.run(f'{GIT_PATH} reset --hard {current_commit}')
+    c.run(f'{GIT_PATH} log -n 1 --format=%H')
 
 
 def _update_virtualenv(c):
@@ -51,10 +56,9 @@ def _create_or_update_dotenv(c):
         current_contents = current_contents.append(f"DJANGO_SECRET_KEY={new_secret}")
     # TODO: Change to .env if all works well and the .env test file looks correct
     c.run(f"echo \"{current_contents}\" > /home/{USERNAME}/sites/{SITENAME}/TEST_RUN_DELETE")
+    c.run(f"cat /home/{USERNAME}/sites/{SITENAME}/TEST_RUN_DELETE")
 
 
+context = Context()
 
-
-ctx = Context()
-
-deploy(ctx)
+deploy(context)
