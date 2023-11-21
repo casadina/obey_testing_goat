@@ -22,7 +22,7 @@ def deploy(ctx):
         connect_kwargs={"key_filename": getenv('SSH_PKEY')}
     ) as c:
         _get_latest_source(c)
-        # _update_virtualenv(c)
+        _update_virtualenv(c)
         # _create_or_update_dotenv(c)
         # _update_static_files(c)
         # _update_database(c)
