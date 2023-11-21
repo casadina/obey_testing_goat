@@ -22,7 +22,7 @@ if 'DJANGO_DEBUG_FALSE' in os.environ:
     DEBUG = False
     SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
     ALLOWED_HOSTS = [os.environ['SITENAME']]
-    CSRF_TRUSTED_ORIGINS = [os.environ['SITENAME'], f'https://*.{os.environ["SITENAME"]}']
+    CSRF_TRUSTED_ORIGINS = [f"https://{os.environ['SITENAME']}", f'https://*.{os.environ["SITENAME"]}']
 else:
     SECRET_KEY = "django-insecure-jm30kn@e&!&$@3k*nj!96^^3w127+j#0uwvr9cih_t1-n2l1=r"
     DEBUG = True
