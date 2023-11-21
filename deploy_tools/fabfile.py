@@ -34,6 +34,8 @@ def _get_latest_source(c):
         c.run(f"{GIT_PATH} clone {REPO_URL} /home/{USERNAME}/sites/{SITENAME}")
     current_commit = subprocess.check_output([GIT_PATH, "log", "-n 1", "--format=%H"]).decode("utf-8").strip("\n")
     c.run(f"cd /home/{USERNAME}/sites/{SITENAME} && {GIT_PATH} fetch")
+    # TODO: Fabric doesn't like the reset command. It runs but receives this error:
+    # fatal: not a git repository (or any of the parent directories): .git
     c.run(f'{GIT_PATH} reset --hard {current_commit}')
     c.run(f'{GIT_PATH} log -n 1 --format=%H')
 
