@@ -1,0 +1,69 @@
+---
+- name: Deploy
+  hosts: all
+  vars:
+    site_folder: "/home/{{ ansible_user }}/sites/{{ inventory_hostname }}"
+    requirements_file: "requirements.txt"
+  tasks:
+    - name: Check if .git directory exists
+      stat:
+        path: "{{ site_folder }}"
+      register: git_folder_stat
+
+    - name: Clone repository if .git directory does not exist
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ site_folder }}"
+      when: not git_folder_stat.stat.exists
+
+    - name: Fetch latest changes from remote repository
+      command:
+        cmd: git fetch
+        chdir: "{{ site_folder }}"
+      when: git_folder_stat.stat.exists
+
+    - name: Update virtual environment
+      pip:
+        requirements: "{{ site_folder }}/{{ requirements_file }}"
+        virtualenv: "{{ site_folder }}/.venv"
+
+    - name: Get current commit hash on local machine
+      local_action: command git rev-parse HEAD
+      register: local_commit
+      when: git_folder_stat.stat.exists
+
+    - name: Reset remote repository to local commit
+      command: git reset --hard {{ local_commit.stdout }}
+      args:
+        chdir: "{{ site_folder }}"
+      when: git_folder_stat.stat.exists
+
+    - name: Ensure DJANGO_DEBUG_FALSE is set in .env
+      ansible.builtin.lineinfile:
+        path: "{{ site_folder }}/.env"
+        line: 'DJANGO_DEBUG_FALSE=y'
+        create: yes
+
+    - name: Ensure SITENAME is set in .env
+      ansible.builtin.lineinfile:
+        path: "{{ site_folder }}/.env"
+        line: 'SITENAME={{ inventory_hostname }}'
+        create: yes
+
+    - name: Check if DJANGO_SECRET_KEY is in .env
+      command: grep -q 'DJANGO_SECRET_KEY' {{ site_folder }}/.env
+      register: secret_key
+      ignore_errors: yes
+
+    - name: Add DJANGO_SECRET_KEY to .env if it's not there
+      ansible.builtin.lineinfile:
+        path: "{{ site_folder }}/.env"
+        line: 'DJANGO_SECRET_KEY={{ lookup("password", "/dev/null length=50 chars=ascii_letters,digits") }}'
+        create: yes
+      when: secret_key.rc != 0
+
+    - name: Run manage.py collectstatic to update static files
+      command: "{{ site_folder }}/.venv/bin/python {{ site_folder }}/manage.py collectstatic --noinput"
+    
+    - name: Run manage.py migrate
+      command: "{{ site_folder }}/.venv/bin/python {{ site_folder }}/manage.py migrate --noinput"
