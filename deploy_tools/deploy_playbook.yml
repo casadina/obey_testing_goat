@@ -1,6 +1,6 @@
 ---
 - name: Deploy
-  hosts: all
+  hosts: staging live
   vars:
     site_folder: "/home/{{ ansible_user }}/sites/{{ inventory_hostname }}"
     requirements_file: "requirements.txt"
@@ -26,6 +26,7 @@
       pip:
         requirements: "{{ site_folder }}/{{ requirements_file }}"
         virtualenv: "{{ site_folder }}/.venv"
+        virtualenv_command: /usr/bin/python3.11 -m venv
 
     - name: Get current commit hash on local machine
       local_action: command git rev-parse HEAD
