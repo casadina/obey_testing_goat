@@ -34,4 +34,4 @@ def new_list(request):
         nulist.delete()
         error = "You can't have an empty list item"
         return render(request, 'home.html', {"error": error})
-    return redirect(f"/lists/{nulist.id}/")
+    return redirect(nulist)
