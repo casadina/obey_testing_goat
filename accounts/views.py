@@ -3,6 +3,7 @@ from accounts.models import Token
 from django.contrib import auth, messages
 from django.core.mail import send_mail
 from django.shortcuts import redirect
+import os
 
 
 def send_login_email(request):
@@ -13,7 +14,7 @@ def send_login_email(request):
     send_mail(
         'Your login link for Superlists',
         message_body,
-        'noreply@superlists',
+        os.getenv('DEFAULT_FROM_EMAIL'),
         [email]
     )
     messages.success(
