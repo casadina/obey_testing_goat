@@ -63,6 +63,23 @@
         create: yes
       when: secret_key.rc != 0
 
+    - name: Include environment variables from vault
+      include_vars:
+        file: vault.yml
+        name: vault_vars
+
+    - name: Ensure environment variables are set in .env
+      ansible.builtin.lineinfile:
+        path: "{{ site_folder }}/.env"
+        line: "{{ item.key }}={{ item.value }}"
+        create: yes
+      loop:
+        - { key: 'ADMIN_EMAIL', value: '{{ vault_vars.admin_email }}' }
+        - { key: 'EMAIL_PASSWORD', value: '{{ vault_vars.email_password }}' }
+        - { key: 'EMAIL_HOST_USER', value: '{{ vault_vars.email_host_user }}' }
+        - { key: 'EMAIL_PORT', value: '{{ vault_vars.email_port }}' }
+        - { key: 'DEFAULT_FROM_EMAIL', value: '{{ vault_vars.default_from_email }}' }
+
     - name: Run manage.py collectstatic to update static files
       command: "{{ site_folder }}/.venv/bin/python {{ site_folder }}/manage.py collectstatic --noinput"
     

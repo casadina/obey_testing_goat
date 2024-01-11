@@ -243,3 +243,4 @@ fabric.properties
 
 # Ansible
 hosts.ini
+vault.yml

@@ -16,14 +16,13 @@ class LoginTest(FunctionalTest):
         # and notices a "Log in" section in the navbar for the first time
         # It's telling her to enter her email address, so she does
         self.browser.get(self.live_server_url)
-        #self.browser.find_element_by_name('email').send_keys(TEST_EMAIL)
         self.browser.find_element(By.NAME, 'email').send_keys(TEST_EMAIL)
         self.browser.find_element(By.NAME, 'email').send_keys(Keys.ENTER)
 
         # A message appears telling her an email has been sent
         self.wait_for(lambda: self.assertIn(
             'Check your email',
-            self.browser.find_element(By.NAME, 'body').text
+            self.browser.find_element(By.TAG_NAME, 'body').text
         ))
 
         # She checks her email and finds a message
@@ -51,3 +50,13 @@ class LoginTest(FunctionalTest):
 
         navbar = self.browser.find_element(By.CSS_SELECTOR, '.navbar')
         self.assertIn(TEST_EMAIL, navbar.text)
+
+        # Now she logs out
+        self.browser.find_element(By.LINK_TEXT, 'Log out').click()
+
+        # She is logged out
+        self.wait_for(
+            lambda: self.browser.find_element(By.NAME, 'email')
+        )
+        navbar = self.browser.find_element(By.CSS_SELECTOR, '.navbar')
+        self.assertNotIn(TEST_EMAIL, navbar.text)
