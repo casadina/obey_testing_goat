@@ -65,7 +65,7 @@
 
     - name: Include environment variables from vault
       include_vars:
-        file: deploy_tools/vault.yml
+        file: vault.yml
         name: vault_vars
 
     - name: Ensure environment variables are set in .env
