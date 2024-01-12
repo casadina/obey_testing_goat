@@ -74,6 +74,7 @@
         line: "{{ item.key }}={{ item.value }}"
         create: yes
       loop:
+        - { key: 'EMAIL_HOST', value: '{{ vault_vars.email_host }}' }
         - { key: 'ADMIN_EMAIL', value: '{{ vault_vars.admin_email }}' }
         - { key: 'EMAIL_PASSWORD', value: '{{ vault_vars.email_password }}' }
         - { key: 'EMAIL_HOST_USER', value: '{{ vault_vars.email_host_user }}' }
