@@ -5,7 +5,8 @@ import re
 
 from .base import FunctionalTest
 
-TEST_EMAIL = 'edith@example.com'
+# Replace with your email address for test purposes
+TEST_EMAIL = 'REPLACE'
 SUBJECT = 'Your login link for Superlists'
 
 
@@ -26,6 +27,9 @@ class LoginTest(FunctionalTest):
         ))
 
         # She checks her email and finds a message
+        if self.staging_server:
+            print("Cannot test email functionality on staging server.")
+            return
         email = mail.outbox[0]
         self.assertIn(TEST_EMAIL, email.to)
         self.assertEqual(email.subject, SUBJECT)

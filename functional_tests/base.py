@@ -8,14 +8,17 @@ import time
 
 MAX_WAIT = 5
 
+reset_database_playbook_path = os.path.join(os.path.dirname(__file__), '../deploy_tools/reset_database.yml')
+inventory_path = os.path.join(os.path.dirname(__file__), '../deploy_tools/hosts.ini')
+
 
 class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
-        staging_server = os.environ.get('STAGING_SERVER')
-        if staging_server:
-            self.live_server_url = f'http://{staging_server}'
-            reset_database(self.staging_server)
+        self.staging_server = os.environ.get('STAGING_SERVER')
+        if self.staging_server:
+            self.live_server_url = f'http://{self.staging_server}'
+            reset_database(reset_database_playbook_path, inventory_path)
 
     def tearDown(self):
         self.browser.quit()
