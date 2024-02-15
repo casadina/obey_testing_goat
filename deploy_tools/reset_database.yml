@@ -1,0 +1,6 @@
+---
+- hosts: staging
+  gather_facts: no
+  tasks:
+    - name: Reset database
+      shell: /home/{{ ansible_user}}/sites/{{ inventory_hostname }}/.venv/bin/python /home/{{ ansible_user }}/sites/{{ inventory_hostname }}/manage.py flush --noinput

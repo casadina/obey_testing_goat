@@ -1,0 +1,16 @@
+---
+- hosts: staging
+  gather_facts: no
+  tasks:
+    - name: Get server environment variables
+      shell: cat /home/{{ ansible_user }}/sites/{{ inventory_hostname }}/.env
+      register: env_output
+
+    - name: Create session on server
+      shell: /home/{{ ansible_user }}/sites/{{ inventory_hostname }}/.venv/bin/python /home/{{ ansible_user }}/sites/{{ inventory_hostname }}/manage.py create_session {{ email }}
+      environment: "{{ env_output.stdout_lines | join('\n') | from_yaml }}"
+      register: session_key_output
+
+    - name: Set fact for session key
+      set_fact:
+        session_key: "{{ session_key_output.stdout | trim }}"
