@@ -5,8 +5,6 @@ import re
 
 from .base import FunctionalTest
 
-# Replace with your email address for test purposes
-TEST_EMAIL = 'REPLACE'
 SUBJECT = 'Your login link for Superlists'
 
 
@@ -17,7 +15,7 @@ class LoginTest(FunctionalTest):
         # and notices a "Log in" section in the navbar for the first time
         # It's telling her to enter her email address, so she does
         self.browser.get(self.live_server_url)
-        self.browser.find_element(By.NAME, 'email').send_keys(TEST_EMAIL)
+        self.browser.find_element(By.NAME, 'email').send_keys(self.test_email)
         self.browser.find_element(By.NAME, 'email').send_keys(Keys.ENTER)
 
         # A message appears telling her an email has been sent
@@ -31,7 +29,7 @@ class LoginTest(FunctionalTest):
             print("Cannot test email functionality on staging server.")
             return
         email = mail.outbox[0]
-        self.assertIn(TEST_EMAIL, email.to)
+        self.assertIn(self.test_email, email.to)
         self.assertEqual(email.subject, SUBJECT)
 
         # It has a url link in it
@@ -53,7 +51,7 @@ class LoginTest(FunctionalTest):
         )
 
         navbar = self.browser.find_element(By.CSS_SELECTOR, '.navbar')
-        self.assertIn(TEST_EMAIL, navbar.text)
+        self.assertIn(self.test_email, navbar.text)
 
         # Now she logs out
         self.browser.find_element(By.LINK_TEXT, 'Log out').click()
@@ -63,4 +61,4 @@ class LoginTest(FunctionalTest):
             lambda: self.browser.find_element(By.NAME, 'email')
         )
         navbar = self.browser.find_element(By.CSS_SELECTOR, '.navbar')
-        self.assertNotIn(TEST_EMAIL, navbar.text)
+        self.assertNotIn(self.test_email, navbar.text)

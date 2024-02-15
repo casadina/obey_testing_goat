@@ -16,6 +16,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
         self.staging_server = os.environ.get('STAGING_SERVER')
+        self.test_email = os.environ.get("TEST_EMAIL")
         if self.staging_server:
             self.live_server_url = f'http://{self.staging_server}'
             reset_database(reset_database_playbook_path, inventory_path)
