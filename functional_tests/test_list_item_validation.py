@@ -54,7 +54,8 @@ class ItemValidationTest(FunctionalTest):
         self.add_list_item("Buy wellies")
 
         # She accidentally tries to enter a duplicate item
-        self.add_list_item("Buy wellies")
+        self.get_item_input_box().send_keys("Buy wellies")
+        self.get_item_input_box().send_keys(Keys.ENTER)
 
         # She sees a helpful error message
         self.wait_for(
@@ -68,8 +69,8 @@ class ItemValidationTest(FunctionalTest):
         # Edith starts a list and causes a validation error:
         self.browser.get(self.live_server_url)
         self.add_list_item("Banter too thick")
-        self.wait_for_row_in_list_table("1: Banter too thick")
-        self.add_list_item("Banter too thick")
+        self.get_item_input_box().send_keys("Banter too thick")
+        self.get_item_input_box().send_keys(Keys.ENTER)
         self.wait_for(
             lambda: self.assertTrue(
                 self.get_error_element().is_displayed()
@@ -91,7 +92,8 @@ class ItemValidationTest(FunctionalTest):
         self.browser.get(self.live_server_url)
         self.add_list_item("Banter too thick")
         self.wait_for_row_in_list_table("1: Banter too thick")
-        self.add_list_item("Banter too thick")
+        self.get_item_input_box().send_keys("Banter too thick")
+        self.get_item_input_box().send_keys(Keys.ENTER)
         self.wait_for(
             lambda: self.assertTrue(
                 self.get_error_element().is_displayed()

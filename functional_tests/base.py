@@ -33,7 +33,9 @@ class FunctionalTest(StaticLiveServerTestCase):
                 rows = table.find_elements(By.TAG_NAME, "tr")
                 self.assertIn(row_text, [row.text for row in rows])
                 return
-            except (AssertionError, WebDriverException):
+            except (AssertionError, WebDriverException) as e:
+                split_row = row_text.split(": ")[1]
+
                 if time.time() - start_time > MAX_WAIT:
                     raise
                 time.sleep(0.5)
@@ -53,7 +55,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         return self.browser.find_element(By.ID, "id_text")
 
     def add_list_item(self, item_text):
-        num_rows = len(self.browser.find_elements(By.ID, '#id_list_table tr'))
+        num_rows = len(self.browser.find_elements(By.TAG_NAME, 'tr'))
         self.get_item_input_box().send_keys(item_text)
         self.get_item_input_box().send_keys(Keys.ENTER)
         item_number = num_rows + 1
